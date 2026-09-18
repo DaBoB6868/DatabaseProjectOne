@@ -34,16 +34,16 @@ public class Driver {
                 .attributeNames(List.of("ID", "name", "dept_name", "salary"))
                 .attributeTypes(List.of(Type.INTEGER, Type.STRING, Type.STRING, Type.DOUBLE))
                 .build();
-        instructor.loadData("C:\\Users\\spenc\\OneDrive\\Documentos\\DataBaseManagement\\exportedDatabases\\mysql-files\\instructor_export.csv");
+        instructor.loadData("data/instructor_export.csv");
         System.out.print("MY MYID = slh56040");
-        instructor.print();
+        // instructor.print();
         Relation student = new RelationBuilder()
                 .attributeNames(List.of("ID", "name", "dept_name", "tot_cred"))
                 .attributeTypes(List.of(Type.INTEGER, Type.STRING, Type.STRING, Type.INTEGER))
                 .build();
-        student.loadData("C:\\Users\\spenc\\OneDrive\\Documentos\\DataBaseManagement\\exportedDatabases\\mysql-files\\student_export.csv");
+        student.loadData("data/student_export.csv");
         System.out.print("MY MYID = slh56040");
-        student.print();
+        // student.print();
 
 
 
@@ -52,7 +52,7 @@ public class Driver {
                 .attributeNames(List.of("course_id", "title", "dept_name", "credits"))
                 .attributeTypes(List.of(Type.STRING, Type.STRING, Type.STRING, Type.INTEGER))
                 .build();
-        course.loadData("PATH\\course_export.csv");
+        course.loadData("data/course_export.csv");
 
         uga.csx370.mydb.RA ra = new RAImpl();
         System.out.println("Query: Departments that have students, instructors, and courses.");
