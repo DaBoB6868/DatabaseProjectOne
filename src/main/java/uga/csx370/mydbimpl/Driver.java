@@ -62,6 +62,18 @@ public class Driver {
                         ra.project(instructor, List.of("dept_name"))),
                 ra.project(course, List.of("dept_name")));
         result.print();
+
+        // ---- Query by Jackson Cross (jrc69565) ----
+        System.out.println();
+        System.out.println("Query: Departments that have students and courses, but no instructors.");
+        Relation studentsAndCourses = ra.intersect(
+                ra.project(student, List.of("dept_name")),
+                ra.project(course, List.of("dept_name")));
+        Relation noInstructor = ra.diff(studentsAndCourses,
+                ra.project(instructor, List.of("dept_name")));
+        Relation labeled = ra.rename(noInstructor,
+                List.of("dept_name"), List.of("dept_without_instructors"));
+        labeled.print();
     }
 
 }
