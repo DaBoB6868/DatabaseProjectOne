@@ -88,5 +88,39 @@ public class Driver {
                 List.of("name", "dept_name", "title", "credits", "salary"));
         report.print();
     }
+        // ---- Query by Cameron Carson (clc60551) ----
+        System.out.println();
+        System.out.println("Query: Instructors in departments that offer 4-credit courses and have students.");
 
+        Relation fourCreditCourses = ra.select(course, row -> {
+        int credits = row.get(course.getAttrIndex("credits")).getAsInt();
+        return credits == 4;
+    });
+
+        Relation fourCreditDepts = ra.project(
+        fourCreditCourses,
+        List.of("dept_name")
+    );
+
+        Relation studentDepts = ra.project(
+        student,
+        List.of("dept_name")
+    );
+
+        Relation qualifyingDepts = ra.intersect(
+        fourCreditDepts,
+        studentDepts
+    );
+
+        Relation matchingInstructors = ra.join(
+        instructor,
+        qualifyingDepts
+    );
+
+        Relation result = ra.project(
+        matchingInstructors,
+        List.of("ID", "name", "dept_name", "salary")
+    );
+
+    result.print();
 }
