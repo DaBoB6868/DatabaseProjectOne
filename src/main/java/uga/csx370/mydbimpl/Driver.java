@@ -87,7 +87,6 @@ public class Driver {
         Relation report = ra.project(highEarnersOnBigCourses,
                 List.of("name", "dept_name", "title", "credits", "salary"));
         report.print();
-    }
         // ---- Query by Cameron Carson (clc60551) ----
         System.out.println();
         System.out.println("Query: Instructors in departments that offer 4-credit courses and have students.");
@@ -117,10 +116,29 @@ public class Driver {
         qualifyingDepts
     );
 
-        Relation result = ra.project(
+        Relation instructorReport = ra.project(
         matchingInstructors,
         List.of("ID", "name", "dept_name", "salary")
     );
 
-    result.print();
+    instructorReport.print();
+
+    // ---- Query by Spencer Hicks (slh56040) ----
+        System.out.println();
+        System.out.println("Query: Students whose names start with M in departments that offer courses and have an instructor earning over $110,000.");
+        Relation highPaidInstructors = ra.select(instructor, row -> {
+            double salary = row.get(instructor.getAttrIndex("salary")).getAsDouble();
+            return salary > 110000;
+        });
+        Relation courseDeptsWithHighPaidInstructors = ra.intersect(
+                ra.project(course, List.of("dept_name")),
+                ra.project(highPaidInstructors, List.of("dept_name")));
+        Relation matchingStudents = ra.join(student, courseDeptsWithHighPaidInstructors);
+        Relation studentsStartingWithM = ra.select(matchingStudents, row -> {
+            String name = row.get(matchingStudents.getAttrIndex("name")).getAsString();
+            return name.startsWith("M");
+        });
+        Relation studentReport = ra.project(studentsStartingWithM, List.of("ID", "name", "dept_name"));
+        studentReport.print();
+    }
 }
