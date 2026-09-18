@@ -59,14 +59,46 @@ public class RAImpl implements RA {
 
     @Override
     public Relation union(Relation rel1, Relation rel2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'union'");
+        if (!rel1.getTypes().equals(rel2.getTypes())) {
+            throw new IllegalArgumentException("Relations are not compatible.");
+        }
+        Relation result = new RelationBuilder()
+                .attributeNames(rel1.getAttrs()).attributeTypes(rel1.getTypes()).build();
+        Set<List<Cell>> seen = new HashSet<>();
+        for (int i = 0; i < rel1.getSize(); i++) {
+            List<Cell> row = rel1.getRow(i);
+            if (seen.add(row)) {
+                result.insert(row);
+            }
+        }
+        for (int i = 0; i < rel2.getSize(); i++) {
+            List<Cell> row = rel2.getRow(i);
+            if (seen.add(row)) {
+                result.insert(row);
+            }
+        }
+        return result;
     }
 
     @Override
     public Relation intersect(Relation rel1, Relation rel2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'intersect'");
+        if (!rel1.getTypes().equals(rel2.getTypes())) {
+            throw new IllegalArgumentException("Relations are not compatible.");
+        }
+        Relation result = new RelationBuilder()
+                .attributeNames(rel1.getAttrs()).attributeTypes(rel1.getTypes()).build();
+        Set<List<Cell>> rel2Rows = new HashSet<>();
+        for (int i = 0; i < rel2.getSize(); i++) {
+            rel2Rows.add(rel2.getRow(i));
+        }
+        Set<List<Cell>> seen = new HashSet<>();
+        for (int i = 0; i < rel1.getSize(); i++) {
+            List<Cell> row = rel1.getRow(i);
+            if (rel2Rows.contains(row) && seen.add(row)) {
+                result.insert(row);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -108,7 +140,8 @@ public class RAImpl implements RA {
     resultTypes.addAll(rel1.getTypes());
     resultTypes.addAll(rel2.getTypes());
     
-    Relation result = new RelationImpl(resultTypes, resultAttrs);
+    Relation result = new RelationBuilder()
+            .attributeNames(resultAttrs).attributeTypes(resultTypes).build();
     
     for (int i = 0; i < rel1.getSize(); i++) {
         List<Cell> row1 = rel1.getRow(i);

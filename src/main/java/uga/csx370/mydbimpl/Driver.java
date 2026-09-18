@@ -44,6 +44,24 @@ public class Driver {
         student.loadData("C:\\Users\\spenc\\OneDrive\\Documentos\\DataBaseManagement\\exportedDatabases\\mysql-files\\student_export.csv");
         System.out.print("MY MYID = slh56040");
         student.print();
+
+
+
+
+        Relation course = new RelationBuilder()
+                .attributeNames(List.of("course_id", "title", "dept_name", "credits"))
+                .attributeTypes(List.of(Type.STRING, Type.STRING, Type.STRING, Type.INTEGER))
+                .build();
+        course.loadData("PATH\\course_export.csv");
+
+        uga.csx370.mydb.RA ra = new RAImpl();
+        System.out.println("Query: Departments that have students, instructors, and courses.");
+        Relation result = ra.intersect(
+                ra.intersect(
+                        ra.project(student, List.of("dept_name")),
+                        ra.project(instructor, List.of("dept_name"))),
+                ra.project(course, List.of("dept_name")));
+        result.print();
     }
 
 }
