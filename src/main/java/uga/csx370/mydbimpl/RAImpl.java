@@ -146,14 +146,100 @@ public class RAImpl implements RA {
 
     @Override
     public Relation cartesianProduct(Relation rel1, Relation rel2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'cartesianProduct'");
+        for (String attr : rel1.getAttrs()) {
+            if (rel2.hasAttr(attr)) {
+                throw new IllegalArgumentException("rel1 and rel2 have common attributes: " + attr);
+            }
+        }
+        List<String> resultAttrs = new ArrayList<>();
+        List<Type> resultTypes = new ArrayList<>();
+
+        resultAttrs.addAll(rel1.getAttrs());
+        resultAttrs.addAll(rel2.getAttrs());
+        resultTypes.addAll(rel1.getTypes());
+        resultTypes.addAll(rel2.getTypes());
+
+        Relation result = new RelationBuilder()
+                .attributeNames(resultAttrs).attributeTypes(resultTypes).build();
+
+        for (int i = 0; i < rel1.getSize(); i++) {
+            List<Cell> row1 = rel1.getRow(i);
+            for (int j = 0; j < rel2.getSize(); j++) {
+                List<Cell> row2 = rel2.getRow(j);
+
+                List<Cell> combinedRow = new ArrayList<>();
+                combinedRow.addAll(row1);
+                combinedRow.addAll(row2);
+
+                result.insert(combinedRow);
+            }
+        }
+
+        return result;
     }
 
     @Override
     public Relation join(Relation rel1, Relation rel2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'join'");
+        List<String> rel1Attrs = rel1.getAttrs();
+        List<String> rel2Attrs = rel2.getAttrs();
+
+        List<String> commonAttrs = new ArrayList<>();
+        for (String attr : rel1Attrs) {
+            if (rel2.hasAttr(attr)) {
+                commonAttrs.add(attr);
+            }
+        }
+
+        List<Integer> rel1CommonIndices = new ArrayList<>();
+        List<Integer> rel2CommonIndices = new ArrayList<>();
+        for (String attr : commonAttrs) {
+            rel1CommonIndices.add(rel1.getAttrIndex(attr));
+            rel2CommonIndices.add(rel2.getAttrIndex(attr));
+        }
+
+        List<Integer> rel2UniqueIndices = new ArrayList<>();
+        for (int i = 0; i < rel2Attrs.size(); i++) {
+            if (!commonAttrs.contains(rel2Attrs.get(i))) {
+                rel2UniqueIndices.add(i);
+            }
+        }
+
+        List<String> resultAttrs = new ArrayList<>(rel1Attrs);
+        List<Type> resultTypes = new ArrayList<>(rel1.getTypes());
+        for (int index : rel2UniqueIndices) {
+            resultAttrs.add(rel2Attrs.get(index));
+            resultTypes.add(rel2.getTypes().get(index));
+        }
+
+        Relation result = new RelationBuilder()
+                .attributeNames(resultAttrs).attributeTypes(resultTypes).build();
+
+        for (int i = 0; i < rel1.getSize(); i++) {
+            List<Cell> row1 = rel1.getRow(i);
+            for (int j = 0; j < rel2.getSize(); j++) {
+                List<Cell> row2 = rel2.getRow(j);
+
+                boolean matches = true;
+                for (int k = 0; k < commonAttrs.size(); k++) {
+                    Cell v1 = row1.get(rel1CommonIndices.get(k));
+                    Cell v2 = row2.get(rel2CommonIndices.get(k));
+                    if (!v1.equals(v2)) {
+                        matches = false;
+                        break;
+                    }
+                }
+
+                if (matches) {
+                    List<Cell> combinedRow = new ArrayList<>(row1);
+                    for (int index : rel2UniqueIndices) {
+                        combinedRow.add(row2.get(index));
+                    }
+                    result.insert(combinedRow);
+                }
+            }
+        }
+
+        return result;
     }
 
     @Override

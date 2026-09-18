@@ -74,6 +74,19 @@ public class Driver {
         Relation labeled = ra.rename(noInstructor,
                 List.of("dept_name"), List.of("dept_without_instructors"));
         labeled.print();
+
+        // ---- Query by Ethan Harding (eth63510) ----
+        System.out.println();
+        System.out.println("Query: Courses with more than 4 credit hours with an instructor earning more than $100,000.");
+        Relation instructorCourses = ra.join(instructor, course);
+        Relation highEarnersOnBigCourses = ra.select(instructorCourses, row -> {
+            double salary = row.get(instructorCourses.getAttrIndex("salary")).getAsDouble();
+            int credits = row.get(instructorCourses.getAttrIndex("credits")).getAsInt();
+            return salary > 100000 && credits == 4;
+        });
+        Relation report = ra.project(highEarnersOnBigCourses,
+                List.of("name", "dept_name", "title", "credits", "salary"));
+        report.print();
     }
 
 }
