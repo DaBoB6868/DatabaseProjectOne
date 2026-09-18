@@ -103,14 +103,45 @@ public class RAImpl implements RA {
 
     @Override
     public Relation diff(Relation rel1, Relation rel2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'diff'");
+        if (!rel1.getTypes().equals(rel2.getTypes())) {
+            throw new IllegalArgumentException("Relations are not compatible.");
+        }
+        Relation result = new RelationBuilder()
+                .attributeNames(rel1.getAttrs()).attributeTypes(rel1.getTypes()).build();
+        Set<List<Cell>> rel2Rows = new HashSet<>();
+        for (int i = 0; i < rel2.getSize(); i++) {
+            rel2Rows.add(rel2.getRow(i));
+        }
+        Set<List<Cell>> seen = new HashSet<>();
+        for (int i = 0; i < rel1.getSize(); i++) {
+            List<Cell> row = rel1.getRow(i);
+            if (!rel2Rows.contains(row) && seen.add(row)) {
+                result.insert(row);
+            }
+        }
+        return result;
     }
 
     @Override
     public Relation rename(Relation rel, List<String> origAttr, List<String> renamedAttr) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'rename'");
+        if (origAttr.size() != renamedAttr.size()) {
+            throw new IllegalArgumentException("origAttr and renamedAttr do not have matching argument counts.");
+        }
+        List<String> inputAttrs = rel.getAttrs();
+        List<String> newAttrs = new ArrayList<>(inputAttrs);
+        for (int i = 0; i < origAttr.size(); i++) {
+            int index = inputAttrs.indexOf(origAttr.get(i));
+            if (index == -1) {
+                throw new IllegalArgumentException("Attribute does not exist in the relation: " + origAttr.get(i));
+            }
+            newAttrs.set(index, renamedAttr.get(i));
+        }
+        Relation result = new RelationBuilder()
+                .attributeNames(newAttrs).attributeTypes(rel.getTypes()).build();
+        for (int i = 0; i < rel.getSize(); i++) {
+            result.insert(rel.getRow(i));
+        }
+        return result;
     }
 
     @Override
